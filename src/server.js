@@ -11,13 +11,23 @@ const orderRoutes = require('./routes/orders');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:3000',
-  process.env.FRONTEND_URL, // tu URL de Vercel, ej: https://artaee.vercel.app
-].filter(Boolean);
+// Acepta localhost Y cualquier subdominio de vercel.app
+app.use(cors({
+  origin: (origin, callback) => {
+    if (
+      !origin ||
+      origin.startsWith('http://localhost') ||
+      origin.endsWith('.vercel.app') ||
+      origin === process.env.FRONTEND_URL
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 
-app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
@@ -29,11 +39,13 @@ app.get('/api/health', (_, res) => res.json({ ok: true, time: new Date() }));
 async function start() {
   try {
     await initDB();
-    app.listen(PORT, () => console.log(`🚀 Backend en http://localhost:${PORT}`));
+    console.log('✅ Base de datos lista');
   } catch (err) {
-    console.error('Error al iniciar:', err);
-    process.exit(1);
+    console.error('⚠️  No se pudo conectar a la BD:', err.message);
+    console.error('El servidor arrancará igual pero las rutas de BD fallarán.');
   }
+
+  app.listen(PORT, () => console.log(`🚀 Backend corriendo en puerto ${PORT}`));
 }
 
 start();
