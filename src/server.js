@@ -18,9 +18,8 @@ app.use(cors({
       !origin ||
       origin.startsWith('http://localhost') ||
       origin.endsWith('.vercel.app') ||
-      origin === process.env.FRONTEND_URL
-      origin === 'https://artaee.com' 
-
+      origin === process.env.FRONTEND_URL ||
+      origin === 'https://artaee.com'
     ) {
       callback(null, true);
     } else {
