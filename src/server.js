@@ -4,9 +4,9 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { initDB } = require('./db');
-
 const authRoutes = require('./routes/auth');
 const orderRoutes = require('./routes/orders');
+const messageRoutes = require('./routes/messages');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -31,10 +31,9 @@ app.use(cors({
 
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
-
+app.use('/api/messages', messageRoutes);
 app.get('/api/health', (_, res) => res.json({ ok: true, time: new Date() }));
 
 async function start() {
@@ -45,8 +44,6 @@ async function start() {
     console.error('⚠️  No se pudo conectar a la BD:', err.message);
     console.error('El servidor arrancará igual pero las rutas de BD fallarán.');
   }
-
   app.listen(PORT, () => console.log(`🚀 Backend corriendo en puerto ${PORT}`));
 }
-
 start();
